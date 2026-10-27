@@ -1,0 +1,45 @@
+plugins {
+    id 'net.neoforged.moddev' version '2.0.148'
+    id 'java'
+}
+
+group = 'com.mihai'
+version = '1.0.0'
+base.archivesName = 'wireless-me'
+
+java {
+    toolchain { languageVersion = JavaLanguageVersion.of(project.findProperty('java_version') as int) }
+}
+
+repositories {
+    maven { url 'https://modmaven.dev/' }   // AE2 (старые версии)
+    maven { url 'https://maven.blamejared.com/' }
+    mavenLocal()
+    mavenCentral()
+}
+
+// AE2 26.x не публикуется в maven — берём твой jar из папки mods (размечаем, чтобы не дублировать)
+def ae2File = file('libs/appliedenergistics2-26.2.1-alpha.jar')
+
+neoForge {
+    // Формат: <mc_version>.<neoforge_build> -> "26.2.0.93"
+    version = "${project.neoforge_version}"
+
+    mods {
+        wirelessme {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+dependencies {
+    // В MC 26.2 additionalRuntimeClasspath убрали — AE2 просто в compile classpath.
+    implementation files(ae2File)
+}
+
+// NB: если AE2 публикует отдельный API-джарник, замени на
+//   "appeng:appliedenergistics2:${project.ae2_version}:api"
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
